@@ -1,0 +1,157 @@
+---
+title: 'Opioid And Minimum Wage Trends from 1999-2015: a Difference-in-Difference
+  Analysis'
+author: "Drew Walker"
+date: "3/27/2021"
+output:
+  pdf_document: default
+  html_document: default
+bibliography: references.bib
+---
+
+## The Ol' Mid-Semester Change-up
+
+This Milestone project may seem an abrupt change from my GA COVID-19 Vaccine Clinic Web Traffic analysis. After I conducted EDA with web traffic data estimated for GA COVID-19 clinic sites, I noticed some issues that would be difficult to work through produce analysis-ready data:
+
+-   Semi-systematic missingness:
+
+    -   \~80 of the 330 clinics had websites. When trying to do the past 31-day history of web traffic for these sites, many sites only had recordings from 0-12 dates, indicating the other dates did not have high enough web traffic (had to be ordinal cut-off, within top 1,000,000 of a geographic region to show up in analysis).
+
+    -   Many clinics used the same url, indicating multiple and complex layers of clustering alongside the county-level clustering I wanted to do to assess broadband internet adoption rates.
+
+I was sad to step away from this project, but after talking it out with my mentor, it seems like these issues would be hard to work for to produce meaningful results. I appreciate that this project taught me a great deal about webscraping and how broadband adoption is assessed in the US, which I hope to incorporate for future projects.
+
+# Opioid Deaths and State-level Minimum Wage
+
+Last January, my mentor and colleagues from the BSHES department worked on a project assessing the impact of state-level minimum wage difference from federal minimum wage on suicides using data from death records in the National Vital Statistics System 1990-2015. Extensive policy data on minimum wage and covariates were used from a repository provided by the University of Kentucky Center for Poverty Research. Kaufman and colleagues conducted a natural experiment utilizing difference-in-difference models to assign "treatment" effect of minimum wage to educational attainment, where individuals dying with less than High School education were considered part of the "treatment" group, who are much more likely to work at or near the minimum wage[@kaufman2020].
+
+After discussing this with my mentor, it seemed like an interesting direction for future research was in applying this model to opioid-related deaths during a period leading up to and during the ongoing opioid pandemic. The aim of this project is to assess the potential effects of minimum wage on opioid-related deaths utilizing a similar natural experiment design relying on a difference-in-difference analysis. This model helps to incorporate fixed-effects for time dependent variables within and between states, combined with an intent-to-treat approach inherent in isolating the analysis to individuals with less than High School education.
+
+## Acquiring the Data
+
+I was given IRB approval and access to raw data from the National Vital Statistics System on our BSHES shared T:Drive. This data is sensitive and cannot be uploaded to Github, though aggregated data visualizations (already approved) and (potentially-- need to talk this over with team) aggregate files can be shared. The visualizations currently will be created to only display aggregate values, and for now data is being loaded directly from the T:Drive, rendering the code unusable for any individual without access. My plan for if the raw data is not allowed to be shared will be to showcase the Shiny/Potentially Shiny-Embedded presentation by running it from my computer and sharing my screen.
+
+## Cleaning the Dataset
+
+Much of the datacleaning process for this analysis was conducted by editing the SAS code used in the previous study [@kaufman2020] to filter NVSS death certificates for Opioid-related deaths, using [relevant codes from ICD-10.](https://mnprc.org/wp-content/uploads/2019/01/using-icd-10-codes-to-assess-opioid-related-overdose-deaths.pdf) After filtering for Opioid deaths, aggregates were created by month and quarter to utilize for difference-in-difference models.
+
+## Exploring the Data
+
+In the initial data exploration, I wanted to visually assess trends in Opioid Deaths and Minimum Wage across states. To do this, I created several plots using ggplot2 that combined all state trajectories and faceted them as well.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven)
+library(tidyverse)
+library(lubridate)
+library(table1)
+library(plm)
+library(stargazer)
+library(lmtest)
+library(sandwich)
+library(tinytex)
+```
+
+```{r load-data}
+opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality Data/Analysis Files/opioid_mw2.sas7bdat")
+```
+
+```{r mwplot}
+mw_plot_combined <- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+  theme_classic()
+
+mw_plot_combined
+
+mw_plot_facet <- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+  theme_classic() +
+  facet_wrap(~ State)
+mw_plot_facet
+
+```
+
+```{r opioid-plot}
+opioid_plot_combined <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
+         geom_line(aes(color = State))+
+  ggtitle('Opioid-related deaths over Time by State, 2000-2015')+
+  theme_classic()
+
+opioid_plot_combined
+
+
+opioid_plot_facet <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
+         geom_line(aes(color = State))+
+  ggtitle('Opioid-related deaths over Time by State, 2000-2015')+
+  theme_classic()+
+  facet_wrap(~ State)
+
+
+opioid_plot_facet
+```
+
+## Descriptive Data on Variables 
+
+```{r table1}
+label(opioid_m2$real_st2015) <- "State Minimum Wage (Adjusted for 2015 US Dollars)"
+label(opioid_m2$real_fd2015) <- "Federal Minimum Wage (Adjusted for 2015 US Dollars)"
+label(opioid_m2$Frequency) <- "Monthly Opioid Deaths"
+label(opioid_m2$male_opioid) <- "Male Monthly Opioid Deaths"
+label(opioid_m2$female_opioid) <- "Female Monthly Opioid Deaths"
+label(opioid_m2$HS_opioid) <- "Monthly Opioid Deaths in Individuals with HS Education or less"
+label(opioid_m2$SC_opioid) <- "Monthly Opioid Deaths in Individuals with greater than a HS Education"
+label(opioid_m2$PovertyRate) <- "State Yearly Poverty Rate "
+label(opioid_m2$Population) <- "State Yearly Population"
+
+
+
+table1(~ real_st2015 + real_fd2015 + mwdiff2015 + Frequency + male_opioid + female_opioid + HS_opioid + SC_opioid + PovertyRate + Population, data = opioid_m2)
+```
+
+## Interactive Visualizations 
+
+I wanted to still make sure I was using this project to develop my R skills in creating dashboards and interactive visualizations using Shiny (a long time goal of mine). I was able to create a working Shiny app for the first time, and I'm looking forward to using it in the presentation. Because it is only being currently hosted on my personal computer (need to double check with research team that it's okay to put up on shinyapps.io), I've included the app.R file in the github repository, but will for now just include a screenshot.
+
+![Shiny App Screenshot showing ability to select state and produce minimum wage difference and opioid deaths plot](MW%20Difference%20Shiny.PNG)
+
+# Modeling
+
+I'll be using the [plm](https://cran.r-project.org/web/packages/plm/plm.pdf) package to run the DD models, referred to in [economics as panel data analysis](https://blog.theleapjournal.org/2016/06/sophisticated-clustered-standard-errors.html).
+
+Fixed effects model-- Lagged Minimum Wage difference on frequency of monthly opioid deaths clustering by state and Month.
+
+This model is **WAY** simplified at this point-- can probably be thought of as my "null" working model... and seems to indicate a positive relationship between minimum wage difference in opioids. This is likely also affected by the fact that I have not included the main treatment effect (stratifying by less than/greater than High School education), as well as inadequate covariate control selection at this point.
+
+I'll be working on adding more covariates as I work out potential theoretical considerations in shifting the paradigm to opioid deaths from suicide, and as we double check the validity of different covariates for this model. I'm including this messy quick model to show the code we'll be adapting for the ultimate end analysis.
+
+-    Model: Frequency \~ lag_mwdiff + Population + Unemployment Rate
+
+-    Within lustered by State
+
+-   Two ways effects
+
+<https://blog.theleapjournal.org/2016/06/sophisticated-clustered-standard-errors.html>
+
+```{r}
+#Fixed effects model
+fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate,data = opioid_m2, model = "within", index=c("FIPS_Code", "Mon"),effect = "twoways")
+
+fe.state
+summary(fe.state)
+```
+
+# Next Steps:
+
+-   Review data cleaning steps taken with mentor-- may need to add additional years (1990-1999)
+
+    -   Need to determine step to focus on \< High School education deaths to "create" the artificial intent-to-treat group.
+
+-   Refine model, determine appropriate covariates and use of lagged vs unlagged minimum wage differences
+
+-   Build out this document to either embed Shiny App [within RMD or convert it to ioslides](https://bookdown.org/yihui/rmarkdown/shiny-embedded.html) for final presentation/paper.
+
+-   Iterate/Practice presentations, figuring out the "Story" to tell regarding the process and insights derived.
+
+### References
