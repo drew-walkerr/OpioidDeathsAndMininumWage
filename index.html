@@ -59,13 +59,23 @@ What is the impact of state-level minimum wage differences from federal minimum 
 
 ## Difference-in-Difference Analysis
 
-* Quasi-experimental (natural experiment) method of assessing changes in outcomes over time among treatment and comparison groups 
-  * Assignment = a state's minimum wage level in a particular month from 2000-2015 (instead of random)
-* Fixed effects included for year and month to control for time-dependent covariation across states
-* Fixed effects/Clustering at the state level to control for state-specific 
-* Control for economic state covariates (poverty level, unemployment rate, gross state product)
+
+* Quasi-experimental (natural experiment) method 
+* Assess changes in outcomes over time among naturally-occurring treatment/comparison groups
+  * Assignment = a state's minimum wage level in a particular month 
+  * Fixed effects = year and month, control for time-dependent covariation across states
+  * Fixed effects/Clustering @ state level to control for nonindependence of state counts
+  * economic state covariates (poverty level, unemployment rate, gross state product)
+---
 
 ---
+
+background-image: url("johnsnow.PNG")
+
+---
+
+Creating exploratory analyses in ggplot
+
 
 ```r
 mw_plot_combined &lt;- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
@@ -83,6 +93,7 @@ mw_plot_combined
 ![](index_files/figure-html/EDA-combined-plot-1.png)&lt;!-- --&gt;
 
 ---
+May be easier to read with facet wrapping
 
 ```r
 mw_plot_facet &lt;- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
@@ -103,8 +114,12 @@ mw_plot_facet
 ![](index_files/figure-html/EDA-panel-plot-1.png)&lt;!-- --&gt;
 
 ---
-# Using gganimate to render plots in gif 
+class: center, middle
 
+## Using gganimate to produce gifs from my ggplots to show trends over time
+
+---
+.tiny[
 
 ```r
 opioid_m2_animate &lt;- opioid_m2 %&gt;% 
@@ -134,7 +149,7 @@ ggplot(opioid_m2_animate, aes(x=meanyear_mwdiff2015,
        subtitle = "Year: {frame_time}")
 anim_save("Opioid and Minimum Wage gapminder style.gif", animation = last_animation())
 ```
-
+]
 ---
 background-image: url("Opioid and Minimum Wage gapminder style.gif")
 
