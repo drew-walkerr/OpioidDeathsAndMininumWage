@@ -81,7 +81,7 @@ Figures 1, 2, 3, 4, 5 and Gif 1 include exploratory data visualizations. Figure 
 
 Initial data exploration was conducted to inspect the data for errors, outliers, and general trends over time across all states. Preliminary data visualization was conducted using a combination of combined, panel, and animated graphs along with descriptive statistics on study measures.
 
-##### Figure 1. Combined plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
+#### Figure 1. Combined plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
 
 ```{r mwplot, echo=FALSE}
 mw_plot_combined <- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
@@ -92,7 +92,7 @@ mw_plot_combined <- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
 mw_plot_combined
 ```
 
-##### Figure 2. Panel plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
+#### Figure 2. Panel plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
 
 ```{r facet-mw, echo=FALSE}
 mw_plot_facet <- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
@@ -103,7 +103,7 @@ mw_plot_facet <- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
 mw_plot_facet
 ```
 
-##### Figure 3: Combined plot: Opioid-related deaths over Time by State, 2000-2015
+#### Figure 3: Combined plot: Opioid-related deaths over Time by State, 2000-2015
 
 ```{r opioid-plot, echo = FALSE}
 opioid_plot_combined <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
@@ -115,7 +115,7 @@ opioid_plot_combined
 
 ```
 
-##### Figure 4: Panel plot: Opioid-related deaths over Time by State, 2000-2015
+#### Figure 4: Panel plot: Opioid-related deaths over Time by State, 2000-2015
 
 ```{r opioid-death-facet, echo= FALSE}
 opioid_plot_facet <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
@@ -128,11 +128,11 @@ opioid_plot_facet <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
 opioid_plot_facet
 ```
 
-##### Gif 1: Opioid Deaths and Minimum Wage by States from 2000-2015
+#### Gif 1: Opioid Deaths and Minimum Wage by States from 2000-2015
 
 ![](Opioid%20and%20Minimum%20Wage%20gapminder%20style.gif)
 
-##### Figure 5: Shiny App Screenshot showing ability for users to explore data by select state input, to produce minimum wage difference and opioid deaths plots
+#### Figure 5: Shiny App Screenshot showing ability for users to explore data by select state input, to produce minimum wage difference and opioid deaths plots
 
 ![](MW%20Difference%20Shiny.PNG)
 
@@ -239,23 +239,11 @@ robust_female_lag
 
 Table 2 includes a summary of models using monthly unlagged state-level minimum wage differences in 2015 dollars as primary predictor in difference-in-difference analyses on outcomes of opioid monthly death counts among the entire US population, high school or less level of education, some college, college graduate, and among males and females.
 
-State-level minimum wage was shown to
+A 1 US dollar increase in concurrent state-level minimum wage difference from the federal minimum wage for each state month was shown have a significant effect on opioid-related deaths in the overall population, resulting in 3.53 more monthly opioid deaths per state (0.04, 7.01, p = .0475). Additionally, difference-in-difference models indicated that a 1 dollar increase in concurrent state-level minimum wage was shown to result in 1.55 more monthly opioid deaths for women in each state (.19, 2.90, p = .025). Other models using the concurrent state-level minimum wage difference as a predictor were not found to produce results of statistical significance. Overall, confidence intervals for these estimates were wide, with many spanning across 0 and incorporating negative values in parameter estimates.
 
--   significant for overall population, 1 dollar minimum wage increase resulted in 3.53 more monthly opioid deaths per state (0.04, 7.01) p = .0475
+In the one month lagged models, interestingly, we saw that a 1-month lagged 1 dollar increase in minimum wage no longer had a significant effect on population-level opioid deaths, and also resulted in a wide confidence interval spanning zero (-1.14, 6.82). A similar effect was observed among female opioid deaths, where 1-month lagged 1 dollar increase in minimum wage also no longer had a significant effect in this population (-.07, 3.08). 1 dollar increases in 1-month lagged minimum wage did significantly predict an additional 1.06 deaths (.20, 1.91, p = .015). No other statistically significant results were observed among the primary predictor and outcome variables.
 
--   female, 1 dollar minimum wage increase resulted in 1.55 more monthly opioid deaths per state (.19, 2.90), p = .025
-
-Confidence intervals in other models were very large or spanned 0.
-
-Lagged Models
-
--   Population had null effect, wide confidence interval
-
--   Some college was significant 1.06 (.20, 1.91) p = .015
-
--   females had null 1.50 (-.07, 3.08) p = .062
-
-##### Table 2: Unlagged models
+#### Table 2: Unlagged models
 
 ```{r did-models, results= "asis", echo = FALSE}
 stargazer(robust_frequency_unlag,robust_hs_unlag, robust_sc_unlag, robust_cg_unlag, robust_male_unlag, robust_female_unlag, 
@@ -274,7 +262,7 @@ stargazer(robust_frequency_unlag,robust_hs_unlag, robust_sc_unlag, robust_cg_unl
 
 ```
 
-##### Table 3: 1-month Lagged models 
+#### Table 3: 1-month Lagged models
 
 ```{r did-models-lagged, results= "asis", echo = FALSE}
 stargazer(robust_frequency_lag,robust_hs_lag, robust_sc_lag,robust_cg_lag, robust_male_lag, robust_female_lag, 
@@ -294,12 +282,14 @@ stargazer(robust_frequency_lag,robust_hs_lag, robust_sc_lag,robust_cg_lag, robus
 
 ## Discussion
 
-This study adds to the body of research assessing the complex relationships between potential economic policy interventions and outcomes of opioid mortality. The null or significant findings from the majority of difference-in-difference analyses could suggest that minimum wage may at least not have a protective effe
+This study adds to the body of research assessing the complex relationships between potential economic policy interventions and outcomes of opioid mortality. The null or significant findings from the majority of difference-in-difference analyses could suggest that minimum wage may at least not have a protective effect as theorized by research surrounding economic impacts on drug overdoses as a "disease of despair".
 
--   Lack of economic impact of minimum wage changes to individuals who die due to opioids
+The differences in unlagged effects versus lagged effects of 1 dollar minimum wage increases are interesting to note, and may point to a more immediate effect of minimum wage increases on opioid overdoses. Further research may be needed to delve into the time period between when minimum wage is increased at the state level to when wage increases are experienced by minimum-wage level employees.
 
--   Lack of economic impact on opioid ODs
+Significant effects between minimum wage increases and female opioid deaths are interesting to note, as women are estimated to comprise \~60% of the minimum wage workforce, indicating that women may be more sensitive to experiencing the effects of minimum wage increases as a public health intervention than men are [@bradley2021].
 
-With data suggesting that 1 in 5 death records lacking information on drugs, our data may underestimate actual opioid counts [@rudd2016].
+While many models resulted in null estimates, with confidence intervals spanning 0, the positive direction of the relationship between state-level minimum wage increases and opioid deaths poses several questions that should be considered as public health policy researchers consider utilizing this policy as a public health intervention. One area worth exploring is a deeper understanding of the true economic impact of minimum wage increases to their overall disposable income, and how this increase may be related to health. Existing research in this area has continued to produce mixed effects, particularly in the context of mental health and drug and alcohol abuse outcomes [@horn2017][@sabia2019]. Exploring how this increase relates to access and demand for opioids and other drugs remains an area of importance for future research. Expanding this analyses to longer time periods may also improve the ability to determine trends in these relationships. A limitation into determining the continuum of intervention effect of minimum wage in this study is present due to the limited range of minimum wage increases found in our sample (range: 0, 3.26 dollars). Stronger intervention effects may be identified as future wage increases surpass the amounts reported in our data. Another potential limitation of this study is that it has been shown that for data reported that 1 in 5 death records lacked any information on drugs, which may mean that our data may underestimate actual opioid counts [@rudd2016].
+
+While the benefits and risks associated with increasing state-level minimum wage continue to be debated, it is important to consider its efficacy as a public health instrument, as one that may produce blunt and unintended effects on populations needing more targeted public health infrastructure and assistance to avoid succumbing to the "diseases of despair".
 
 ### References
