@@ -1,0 +1,45 @@
+---
+title: "OpioidAndMWAnimatedPlots"
+author: "Drew Walker"
+date: "4/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(gganimate)
+library(ggrepel)
+```
+
+```{r gganimate}
+#May want to slow down a bit 
+#Also, need to not run this code for class presentation, instead embed the GIF to save time
+opioid_m2_animate <- opioid_m2 %>% 
+  group_by(State, year) %>% 
+  summarise(meanyear_mwdiff2015 = mean(mwdiff2015),
+         sum_yearopioid_frequency= sum(Frequency),
+         meanyear_poverty_PovertyRate= mean(PovertyRate))
+
+ggplot(opioid_m2_animate, aes(x=meanyear_mwdiff2015, 
+                              y=sum_yearopioid_frequency,
+                              size = meanyear_poverty_PovertyRate, 
+                              color = State))+
+  geom_point()+
+  theme_classic()+
+  labs(x = "State Mean Difference from Minimum Wage by Year", 
+       y = "Opioid Deaths per Year")+
+  guides(size = guide_legend("Poverty Rate %"))+
+  theme(legend.position = "bottom")+
+  guides(color = FALSE)+
+  geom_label_repel(aes(label = State),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  show.legend = FALSE)+
+  transition_time(as.integer(year)) +
+  labs(title = "Opioid Deaths and Minimum Wage by States from 1999 to 2015",
+       subtitle = "Year: {frame_time}")
+anim_save("Opioid and Minimum Wage gapminder style.gif", animation = last_animation())
+```
+

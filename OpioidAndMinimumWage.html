@@ -194,6 +194,7 @@ pre code {
 </div>
 
 
+<p><a href="https://github.com/drew-walkerr/OpioidDeathsAndMininumWage">Github Repository Link</a></p>
 <div id="the-ol-mid-semester-change-up" class="section level2">
 <h2>The Ol’ Mid-Semester Change-up</h2>
 <p>This Milestone project may seem an abrupt change from my GA COVID-19 Vaccine Clinic Web Traffic analysis. After I conducted EDA with web traffic data estimated for GA COVID-19 clinic sites, I noticed some issues that would be difficult to work through produce analysis-ready data:</p>
@@ -416,8 +417,8 @@ table1(~ real_st2015 + real_fd2015 + mwdiff2015 + Frequency + male_opioid + fema
 <p>This model is <strong>WAY</strong> simplified at this point– can probably be thought of as my “null” working model… and seems to indicate a positive relationship between minimum wage difference in opioids. This is likely also affected by the fact that I have not included the main treatment effect (stratifying by less than/greater than High School education), as well as inadequate covariate control selection at this point.</p>
 <p>I’ll be working on adding more covariates as I work out potential theoretical considerations in shifting the paradigm to opioid deaths from suicide, and as we double check the validity of different covariates for this model. I’m including this messy quick model to show the code we’ll be adapting for the ultimate end analysis.</p>
 <ul>
-<li><p>Model: Frequency ~ lag_mwdiff + Population + Unemployment Rate</p></li>
-<li><p>Within lustered by State</p></li>
+<li><p>Model: Frequency ~ lag_mwdiff (1 month lagged MW state-federal difference value) + Population + Unemployment Rate</p></li>
+<li><p>Within clustered by State</p></li>
 <li><p>Two ways effects</p></li>
 </ul>
 <p><a href="https://blog.theleapjournal.org/2016/06/sophisticated-clustered-standard-errors.html" class="uri">https://blog.theleapjournal.org/2016/06/sophisticated-clustered-standard-errors.html</a></p>

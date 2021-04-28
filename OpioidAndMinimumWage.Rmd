@@ -136,12 +136,26 @@ I'll be working on adding more covariates as I work out potential theoretical co
 
 <https://blog.theleapjournal.org/2016/06/sophisticated-clustered-standard-errors.html>
 
+\#
+
 ```{r}
 #Fixed effects model
-fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate,data = opioid_m2, model = "within", index=c("FIPS_Code", "Mon"),effect = "twoways")
+# add 1-12 month as covariate to account for seasonality
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate + month + year,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 fe.state
 summary(fe.state)
+```
+
+```{r HS-opioid-deaths}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.hs <- plm(formula=HS_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+fe.state.hs
+summary(fe.state.hs)
 ```
 
 # Next Steps:
@@ -155,5 +169,45 @@ summary(fe.state)
 -   Build out this document to either embed Shiny App [within RMD or convert it to ioslides](https://bookdown.org/yihui/rmarkdown/shiny-embedded.html) for final presentation/paper.
 
 -   Iterate/Practice presentations, figuring out the "Story" to tell regarding the process and insights derived.
+
+## Animated Visualizations
+
+Using gganimate and ggrepel (for labeling), I was able to try to create some Gapminder-esque plot visualizing changes in minimum wage, opioid deaths, and poverty rate by States. Look at those state labels go!
+
+```{r gganimate}
+#May want to slow down a bit 
+
+library(ggplot2)
+library(gganimate)
+library(ggrepel)
+opioid_m2_animate <- opioid_m2 %>% 
+  group_by(State, year) %>% 
+  summarise(meanyear_mwdiff2015 = mean(mwdiff2015),
+         sum_yearopioid_frequency= sum(Frequency),
+         meanyear_poverty_PovertyRate= mean(PovertyRate))
+
+ggplot(opioid_m2_animate, aes(x=meanyear_mwdiff2015, 
+                              y=sum_yearopioid_frequency,
+                              size = meanyear_poverty_PovertyRate, 
+                              color = State))+
+  geom_point()+
+  theme_classic()+
+  labs(x = "State Mean Difference from Minimum Wage by Year", 
+       y = "Opioid Deaths per Year")+
+  guides(size = guide_legend("Poverty Rate %"))+
+  theme(legend.position = "bottom")+
+  guides(color = FALSE)+
+  geom_label_repel(aes(label = State),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  show.legend = FALSE)+
+  transition_time(as.integer(year)) +
+  labs(title = "Opioid Deaths and Minimum Wage by States from 1999 to 2015",
+       subtitle = "Year: {frame_time}")
+anim_save("Opioid and Minimum Wage gapminder style.gif", animation = last_animation())
+
+
+```
 
 ### References

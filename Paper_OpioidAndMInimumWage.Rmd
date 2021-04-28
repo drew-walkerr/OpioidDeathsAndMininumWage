@@ -1,0 +1,305 @@
+---
+title: 'Paper: Opioid And Minimum Wage Trends from 2000-2015: a Difference-in-Difference
+  Analysis'
+author: "Drew Walker"
+date: "3/27/2021"
+output:
+  html_document: default
+  pdf_document: default
+bibliography: references.bib
+---
+
+[Github Repository Link](https://github.com/drew-walkerr/OpioidDeathsAndMininumWage)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven)
+library(tidyverse)
+library(lubridate)
+library(table1)
+library(plm)
+library(stargazer)
+library(lmtest)
+library(sandwich)
+library(tinytex)
+library(xaringan)
+
+opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality Data/Analysis Files/opioid_mw2.sas7bdat")
+```
+
+# Introduction
+
+Opioid-related deaths have more than doubled since 2010, with nearly 46,802 individuals dying from opioid-related overdoses in 2019 alone [@nationalinstituteondrugabuse2021]. These deaths have been described as belonging to a group of three behavior-related health crises known as "diseases of despair" . Drug overdoses, alongside suicide and alcoholic liver disease comprise this category , which was coined in response to the sharp rise in prevalence within the last decade, and has likely accelerated since the beginning of the COVID-19 pandemic [@mulligan2021]. Previous research has identified strong relationships between economic instability and sense of hopelessness with an increased prevalence of diseases of despair, with arguments being made for employing economic policy interventions for health effects alone [@knapp2019]. Other studies have pointed to environment-level access to drugs and public health services, and have called for maintaining the framing of drug overdoses from deaths of despair towards one that focused on ending addiction through accessible and sustainable public health infrastructure [@ruhm2018].
+
+***The aim of this project*** ***is to employ rigorous methods to study the potential effects of minimum wage on opioid-related deaths between 2000 and 2015, utilizing a difference-in-difference analysis.*** Difference-in-difference modeling approaches help investigate causal effects of public health interventions and policy studies control for many threats to validity by incorporating fixed-effects for time and state-dependent variables within and between states[@lechner2011]. This approach is combined with an intent-to-treat analyses in which samples are filtered for deaths of individuals with less than or equal to high school education, a group that is significantly more likely to receive minimum wage pay for work [@bradley2021].
+
+This study is an extension of previous research, which assessed the impact of state-level minimum wage difference from federal minimum wage on suicides using data from death records in the National Vital Statistics System from 1990-2015 [@kaufman2020]. Extensive policy data on minimum wage and covariates were used from a repository provided by the University of Kentucky Center for Poverty Research. Kaufman and colleagues from Rollins School of Public Health at Emory University conducted a natural experiment utilizing difference-in-difference models to assign "treatment" effect of minimum wage to educational attainment, where individuals dying with less than High School education were considered part of the "treatment" group, who are much more likely to work at or near the minimum wage[@kaufman2020].
+
+# Methods
+
+Our team received IRB approval and access to raw data from the National Vital Statistics System and store mortality files on our encrypted BSHES shared T:Drive. This data is sensitive and cannot be uploaded to Github, though aggregated data visualizations (already approved) and models can be shared. Future analyses aimed towards increasing analysis reproducibility may be possible via downloading data from CDC Wonder and employing the same filters for ICD-10 codes and year parameters.
+
+### Measures
+
+#### Opioid death counts by state month
+
+Population opioid death counts by each state per month were aggregated from death records from the National Vital Statistics System 2000-2015. Data was filtered using ICD-10 codes, all deaths where the underlying cause was accidental opioid poisoning (X40-X44, X60-X64), intentional self-poisoning (Y10-Y14), and assault (homicide) by drugs, medications, bio substances (X85). Opioid death counts are further broken out into separate group-specific death counts by male and female, as well as education level (less than or equal to high school, some college, and college graduate).
+
+#### Minimum Wage and State Economic Covariates
+
+The primary predictors of the study, defined as difference from the adjusted 2015 federal minimum wage, was accessed using a repository developed by the University of Kentucky Center for Poverty Research. A 1-month lagged minimum wage value was also compiled to offset the theoretical intervention effect of minimum wage to account for a month to capture a change in minimum wage's effective policy date. Economic state covariates used in models were population, poverty rate, unemployment rate, gross state product.
+
+## Design
+
+A series of difference-in-difference for population opioid death counts as well as each of these group-specific death counts was conducted, using either the federal minimum wage in 2015 dollars or the 1-month lagged federal minimum wage in 2015 dollars as primary predictor variables. Year and month were included for fixed effects, and clustering was done at the state level, incorporating a generalized estimating equation to produce robust standard errors.
+
+Difference-in-difference analyses were conducted using the R packages *plm,* with GEE robust estimators calculated using *sandwich.* Data wrangling, presentation, and visualizations were developed in R version 4.0.3, using packages *tidyverse, haven, lubridate, table1, stargazer, and xaringan, tinytex, and rmarkdown.*
+
+# Results
+
+### Exploratory Data Analysis
+
+Table 1 includes a set of descriptive statistics on primary study outcomes, predictors, and covariates.
+
+```{r table1, echo = FALSE}
+label(opioid_m2$real_st2015) <- "State Minimum Wage (Adjusted for 2015 US Dollars)"
+label(opioid_m2$real_fd2015) <- "Federal Minimum Wage (Adjusted for 2015 US Dollars)"
+label(opioid_m2$Frequency) <- "Monthly Opioid Deaths"
+label(opioid_m2$male_opioid) <- "Male Monthly Opioid Deaths"
+label(opioid_m2$female_opioid) <- "Female Monthly Opioid Deaths"
+label(opioid_m2$HS_opioid) <- "Monthly Opioid Deaths in Individuals with HS Education or less"
+label(opioid_m2$SC_opioid) <- "Monthly Opioid Deaths in Individuals with greater than a HS Education"
+label(opioid_m2$PovertyRate) <- "State Yearly Poverty Rate "
+label(opioid_m2$Population) <- "State Yearly Population"
+label(opioid_m2$mwdiff2015) <- "State Difference from Minimum Wage (in 2015 dollars)"
+
+
+table1(~ real_st2015 + real_fd2015 + mwdiff2015 + Frequency + male_opioid + female_opioid + HS_opioid + SC_opioid + PovertyRate + Population, data = opioid_m2, footnote = "Table 1: Descriptive statistics for study measures")
+```
+
+Figures 1, 2, 3, 4, 5 and Gif 1 include exploratory data visualizations. Figure 5 includes a screenshot of an interactive data visualization Shiny app created to facilitate research dissemination, education, and communication efforts.
+
+Initial data exploration was conducted to inspect the data for errors, outliers, and general trends over time across all states. Preliminary data visualization was conducted using a combination of combined, panel, and animated graphs along with descriptive statistics on study measures.
+
+##### Figure 1. Combined plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
+
+```{r mwplot, echo=FALSE}
+mw_plot_combined <- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time , 2000-2015')+
+  theme_classic()
+
+mw_plot_combined
+```
+
+##### Figure 2. Panel plot: State minimum wage difference from federal in 2015 dollars over time, 2000-2015
+
+```{r facet-mw, echo=FALSE}
+mw_plot_facet <- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+  theme_classic() +
+  facet_wrap(~ State)
+mw_plot_facet
+```
+
+##### Figure 3: Combined plot: Opioid-related deaths over Time by State, 2000-2015
+
+```{r opioid-plot, echo = FALSE}
+opioid_plot_combined <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
+         geom_line(aes(color = State))+
+  ggtitle('Opioid-related deaths over Time by State, 2000-2015')+
+  theme_classic()
+
+opioid_plot_combined
+
+```
+
+##### Figure 4: Panel plot: Opioid-related deaths over Time by State, 2000-2015
+
+```{r opioid-death-facet, echo= FALSE}
+opioid_plot_facet <- ggplot(data = opioid_m2, aes(Mon,Frequency))+
+         geom_line(aes(color = State))+
+  ggtitle('Opioid-related deaths over Time by State, 2000-2015')+
+  theme_classic()+
+  facet_wrap(~ State)
+
+
+opioid_plot_facet
+```
+
+##### Gif 1: Opioid Deaths and Minimum Wage by States from 2000-2015
+
+![](Opioid%20and%20Minimum%20Wage%20gapminder%20style.gif)
+
+##### Figure 5: Shiny App Screenshot showing ability for users to explore data by select state input, to produce minimum wage difference and opioid deaths plots
+
+![](MW%20Difference%20Shiny.PNG)
+
+```{r, frequency-main-lag-model, include=FALSE}
+#Fixed effects model
+# add 1-12 month as covariate to account for seasonality
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct, data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_frequency_lag <- coeftest(fe.state, vcov=vcovHC(fe.state, type="sss", cluster="group")) 
+
+fe.state.unlag <- plm(formula=Frequency ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_frequency_unlag <- coeftest(fe.state.unlag, vcov=vcovHC(fe.state.unlag, type="sss", cluster="group")) 
+robust_frequency_unlag
+
+```
+
+```{r opioid-deaths-hs-model, include = FALSE}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.hs.lag <- plm(formula=HS_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_hs_lag <- coeftest(fe.state.hs.lag, vcov=vcovHC(fe.state.hs.lag, type="sss", cluster="group")) 
+
+fe.state.hs.unlag <- plm(formula=HS_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_hs_unlag <- coeftest(fe.state.hs.unlag, vcov=vcovHC(fe.state.hs.unlag, type="sss", cluster="group")) 
+
+
+```
+
+```{r opioid-deaths-sc-model, include = FALSE}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.sc.lag <- plm(formula=SC_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.sc.unlag <- plm(formula=SC_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+
+robust_sc_lag <- coeftest(fe.state.sc.lag, vcov=vcovHC(fe.state.sc.lag, type="sss", cluster="group")) 
+
+robust_sc_unlag <- coeftest(fe.state.sc.unlag, vcov=vcovHC(fe.state.sc.unlag, type="sss", cluster="group")) 
+
+```
+
+```{r opioid-deaths-cg-model, include = FALSE}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.cg <- plm(formula=CG_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+fe.state.cg
+summary(fe.state.cg)
+
+robust_cg_lag <- coeftest(fe.state.cg, vcov=vcovHC(fe.state.cg, type="sss", cluster="group")) 
+
+fe.state.cg.unlag <- plm(formula=CG_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_cg_unlag <- coeftest(fe.state.cg.unlag, vcov=vcovHC(fe.state.cg.unlag, type="sss", cluster="group")) 
+
+
+
+```
+
+```{r, opioid-male-model, include = FALSE}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.male.unlag <- plm(formula=male_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.male.lag <- plm(formula=male_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+
+
+
+robust_male_unlag <- coeftest(fe.state.male.unlag, vcov=vcovHC(fe.state.male.unlag, type="sss", cluster="group")) 
+
+robust_male_lag <- coeftest(fe.state.male.lag, vcov=vcovHC(fe.state.male.lag, type="sss", cluster="group")) 
+
+```
+
+```{r, opioid-female-model, include = FALSE}
+opioid_m2$year<- as.factor(opioid_m2$year)
+opioid_m2$month<- as.factor(opioid_m2$month)
+fe.state.female <- plm(formula=female_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+fe.state.female.unlag <- plm(formula=female_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+
+
+robust_female_lag <- coeftest(fe.state.female, vcov=vcovHC(fe.state.female, type="sss", cluster="group")) 
+
+robust_female_unlag <- coeftest(fe.state.female.unlag, vcov=vcovHC(fe.state.female.unlag, type="sss", cluster="group")) 
+
+robust_female_lag
+
+```
+
+# Model Summaries
+
+Table 2 includes a summary of models using monthly unlagged state-level minimum wage differences in 2015 dollars as primary predictor in difference-in-difference analyses on outcomes of opioid monthly death counts among the entire US population, high school or less level of education, some college, college graduate, and among males and females.
+
+State-level minimum wage was shown to
+
+-   significant for overall population, 1 dollar minimum wage increase resulted in 3.53 more monthly opioid deaths per state (0.04, 7.01) p = .0475
+
+-   female, 1 dollar minimum wage increase resulted in 1.55 more monthly opioid deaths per state (.19, 2.90), p = .025
+
+Confidence intervals in other models were very large or spanned 0.
+
+Lagged Models
+
+-   Population had null effect, wide confidence interval
+
+-   Some college was significant 1.06 (.20, 1.91) p = .015
+
+-   females had null 1.50 (-.07, 3.08) p = .062
+
+##### Table 2: Unlagged models
+
+```{r did-models, results= "asis", echo = FALSE}
+stargazer(robust_frequency_unlag,robust_hs_unlag, robust_sc_unlag, robust_cg_unlag, robust_male_unlag, robust_female_unlag, 
+          ci = TRUE,
+          type = "html", 
+          title = "Difference-in-difference models using unlagged minimum wage in 2015 US Dollars as Predictor Variable and Opioid Deaths within each group as outcomes",
+          notes.append = FALSE, 
+          notes = c("<sup>&sstarf;</sup>p<0.1;<sup>&sstarf;&sstarf;</sup>p<0.05; <sup>&sstarf;&sstarf;&sstarf;</sup>p<0.01"),
+          column.labels   = c("Population", "HS or Less", "Some Coll.","Coll. Grad.","Male","Female"),
+           single.row = TRUE, # to put coefficients and standard errors on same line
+          no.space = TRUE, # to remove the spaces after each line of coefficients
+          column.sep.width = "3pt", # to reduce column width
+          font.size = "small",
+          digits = 2) # to make font size smaller)
+
+
+```
+
+##### Table 3: 1-month Lagged models 
+
+```{r did-models-lagged, results= "asis", echo = FALSE}
+stargazer(robust_frequency_lag,robust_hs_lag, robust_sc_lag,robust_cg_lag, robust_male_lag, robust_female_lag, 
+          ci = TRUE,
+          type = "html", 
+          title = "Difference-in-difference models using 1-month lagged minimum wage in 2015 US Dollars as Predictor Variable",
+          notes.append = FALSE, 
+          notes = c("<sup>&sstarf;</sup>p<0.1;<sup>&sstarf;&sstarf;</sup>p<0.05; <sup>&sstarf;&sstarf;&sstarf;</sup>p<0.01"),
+          column.labels   = c("Population", "HS or Less", "Some Coll.","Coll. Grad.","Male","Female"),
+           single.row = TRUE, # to put coefficients and standard errors on same line
+          no.space = TRUE, # to remove the spaces after each line of coefficients
+          column.sep.width = "3pt", # to reduce column width
+          font.size = "small", # to make font size smaller))
+          digits = 2) 
+
+```
+
+## Discussion
+
+This study adds to the body of research assessing the complex relationships between potential economic policy interventions and outcomes of opioid mortality. The null or significant findings from the majority of difference-in-difference analyses could suggest that minimum wage may at least not have a protective effe
+
+-   Lack of economic impact of minimum wage changes to individuals who die due to opioids
+
+-   Lack of economic impact on opioid ODs
+
+With data suggesting that 1 in 5 death records lacking information on drugs, our data may underestimate actual opioid counts [@rudd2016].
+
+### References
