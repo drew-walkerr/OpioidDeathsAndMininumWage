@@ -1,5 +1,5 @@
 ---
-title: "Opioid And Minimum Wage Trends from 1999-2015 : a Difference-in-Difference Analysis"
+title: "Opioid And Minimum Wage Trends from 2000-2015 : a Difference-in-Difference Analysis"
 author: "Drew Walker, MS, CHES"
 institute: "Department of Behavioral, Social, Health Education Sciences, Emory University"
 date: "2021-04-28"
