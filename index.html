@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Opioid And Minimum Wage Trends from 1999-2015</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Drew Walker, MS, CHES" />
+    <meta name="date" content="2021-04-28" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Opioid And Minimum Wage Trends from 1999-2015
+## a Difference-in-Difference Analysis
+### Drew Walker, MS, CHES
+### Department of Behavioral, Social, Health Education Sciences, Emory University
+### 2021-04-28
+
+---
+
+
+
+
+# Intro
+
+* Transition from GA COVID-19 internet adoption data project
+
+* Previous research on minimum wage and suicde @Koffman 
+
+* Diseases of dispair [@e]
+
+* link with economic stressors
+
+* Determining link between MW and opioid deaths using mortality data 
+
+
+---
+
+# Design
+
+## Research question: 
+What is the impact of state-level minimum wage differences from federal minimum wage on opioid deaths?
+
+## Data sources: 
+* Opioid death records--  National Vital Statistics System 1990-2015, filtered using ICD-10 codes, all deaths where the underlying cause was :
+
+  * Accidental opioid poisoning (OD) (X40-X44, X60-X64)
+  * Intentional Self-Poisoning (suicide) , (Y10-Y14)
+  * Assault (homicide) by drugs, medications, bio substances (X85)
+  
+* Minimum Wage and State policy covariates 
+
+  * Repository provided by the University of Kentucky Center for Poverty Research
+---
+# Design
+
+## Difference-in-Difference Analysis
+
+* Quasi-experimental (natural experiment) method of assessing changes in outcomes over time among treatment and comparison groups 
+  * Assignment = a state's minimum wage level in a particular month from 2000-2015 (instead of random)
+* Fixed effects included for year and month to control for time-dependent covariation across states
+* Fixed effects/Clustering at the state level to control for state-specific 
+* Control for economic state covariates (poverty level, unemployment rate, gross state product)
+
+---
+
+```r
+mw_plot_combined &lt;- ggplot(data = opioid_m2, aes(Mon,mwdiff2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+  theme_classic()
+```
+
+---
+
+```r
+mw_plot_combined
+```
+
+![](index_files/figure-html/EDA-combined-plot-1.png)&lt;!-- --&gt;
+
+---
+
+```r
+mw_plot_facet &lt;- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
+         geom_line(aes(color = State))+
+  ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+  theme_classic() +
+  facet_wrap(~ State)
+```
+
+---
+class: full-side-fig
+
+
+```r
+mw_plot_facet
+```
+
+![](index_files/figure-html/EDA-panel-plot-1.png)&lt;!-- --&gt;
+
+---
+# Using gganimate to render plots in gif 
+
+
+```r
+opioid_m2_animate &lt;- opioid_m2 %&gt;% 
+  group_by(State, year) %&gt;% 
+  summarise(meanyear_mwdiff2015 = mean(mwdiff2015),
+         sum_yearopioid_frequency= sum(Frequency),
+         meanyear_poverty_PovertyRate= mean(PovertyRate))
+
+ggplot(opioid_m2_animate, aes(x=meanyear_mwdiff2015, 
+                              y=sum_yearopioid_frequency,
+                              size = meanyear_poverty_PovertyRate, 
+                              color = State))+
+  geom_point()+
+  theme_classic()+
+  labs(x = "State Mean Difference from Minimum Wage by Year", 
+       y = "Opioid Deaths per Year")+
+  guides(size = guide_legend("Poverty Rate %"))+
+  theme(legend.position = "bottom")+
+  guides(color = FALSE)+
+  geom_label_repel(aes(label = State),
+                  box.padding   = 0.35, 
+                  point.padding = 0.5,
+                  segment.color = 'grey50',
+                  show.legend = FALSE)+
+  transition_time(as.integer(year)) +
+  labs(title = "Opioid Deaths and Minimum Wage by States from 1999 to 2015",
+       subtitle = "Year: {frame_time}")
+anim_save("Opioid and Minimum Wage gapminder style.gif", animation = last_animation())
+```
+
+---
+class: center
+background-image: url("Opioid and Minimum Wage gapminder style.gif")
+
+---
+# Results
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;table style="text-align:center"&gt;&lt;caption&gt;&lt;strong&gt;Difference-in-difference models using unlagged minimum wage in 2015 US Dollars as Predictor Variable and Opioid Deaths within each group as outcomes&lt;/strong&gt;&lt;/caption&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="6"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="6" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="6"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;Population&lt;/td&gt;&lt;td&gt;HS or Less&lt;/td&gt;&lt;td&gt;Some Coll.&lt;/td&gt;&lt;td&gt;Coll. Grad.&lt;/td&gt;&lt;td&gt;Male&lt;/td&gt;&lt;td&gt;Female&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;td&gt;(4)&lt;/td&gt;&lt;td&gt;(5)&lt;/td&gt;&lt;td&gt;(6)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;mwdiff2015&lt;/td&gt;&lt;td&gt;3.53&lt;sup&gt;**&lt;/sup&gt; (0.04, 7.01)&lt;/td&gt;&lt;td&gt;2.74&lt;sup&gt;*&lt;/sup&gt; (-0.19, 5.67)&lt;/td&gt;&lt;td&gt;0.79&lt;sup&gt;*&lt;/sup&gt; (-0.06, 1.64)&lt;/td&gt;&lt;td&gt;-0.26 (-1.21, 0.69)&lt;/td&gt;&lt;td&gt;1.98&lt;sup&gt;*&lt;/sup&gt; (-0.21, 4.16)&lt;/td&gt;&lt;td&gt;1.55&lt;sup&gt;**&lt;/sup&gt; (0.19, 2.90)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Population&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.00 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000&lt;sup&gt;**&lt;/sup&gt; (-0.0000, -0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Unemploymentrate&lt;/td&gt;&lt;td&gt;3.20&lt;sup&gt;***&lt;/sup&gt; (1.40, 5.01)&lt;/td&gt;&lt;td&gt;2.15&lt;sup&gt;***&lt;/sup&gt; (0.78, 3.53)&lt;/td&gt;&lt;td&gt;0.79&lt;sup&gt;***&lt;/sup&gt; (0.21, 1.37)&lt;/td&gt;&lt;td&gt;-0.12 (-0.70, 0.46)&lt;/td&gt;&lt;td&gt;1.92&lt;sup&gt;***&lt;/sup&gt; (0.83, 3.01)&lt;/td&gt;&lt;td&gt;1.28&lt;sup&gt;***&lt;/sup&gt; (0.54, 2.02)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;PovertyRate&lt;/td&gt;&lt;td&gt;1.55&lt;sup&gt;**&lt;/sup&gt; (0.30, 2.80)&lt;/td&gt;&lt;td&gt;1.27&lt;sup&gt;**&lt;/sup&gt; (0.26, 2.27)&lt;/td&gt;&lt;td&gt;0.30&lt;sup&gt;**&lt;/sup&gt; (0.04, 0.57)&lt;/td&gt;&lt;td&gt;-0.13 (-0.53, 0.27)&lt;/td&gt;&lt;td&gt;0.99&lt;sup&gt;**&lt;/sup&gt; (0.19, 1.79)&lt;/td&gt;&lt;td&gt;0.56&lt;sup&gt;**&lt;/sup&gt; (0.10, 1.02)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;GrossStateProduct&lt;/td&gt;&lt;td&gt;0.0002&lt;sup&gt;***&lt;/sup&gt; (0.0002, 0.0003)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0001, 0.0002)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0000, 0.0001)&lt;/td&gt;&lt;td&gt;0.0000&lt;sup&gt;**&lt;/sup&gt; (0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;0.0002&lt;sup&gt;***&lt;/sup&gt; (0.0001, 0.0002)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0000, 0.0001)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="6" style="text-align:right"&gt;&lt;sup&gt;&amp;sstarf;&lt;/sup&gt;p&lt;0.1;&lt;sup&gt;&amp;sstarf;&amp;sstarf;&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;&amp;sstarf;&amp;sstarf;&amp;sstarf;&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+---
+
+
+&lt;table style="text-align:center"&gt;&lt;caption&gt;&lt;strong&gt;Difference-in-difference models using 1-month lagged minimum wage in 2015 US Dollars as Predictor Variable&lt;/strong&gt;&lt;/caption&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="6"&gt;&lt;em&gt;Dependent variable:&lt;/em&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td colspan="6" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td colspan="6"&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;Population&lt;/td&gt;&lt;td&gt;HS or Less&lt;/td&gt;&lt;td&gt;Some Coll.&lt;/td&gt;&lt;td&gt;Coll. Grad.&lt;/td&gt;&lt;td&gt;Male&lt;/td&gt;&lt;td&gt;Female&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;/td&gt;&lt;td&gt;(1)&lt;/td&gt;&lt;td&gt;(2)&lt;/td&gt;&lt;td&gt;(3)&lt;/td&gt;&lt;td&gt;(4)&lt;/td&gt;&lt;td&gt;(5)&lt;/td&gt;&lt;td&gt;(6)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;lag_mwdiff&lt;/td&gt;&lt;td&gt;2.84 (-1.14, 6.82)&lt;/td&gt;&lt;td&gt;2.40 (-0.75, 5.54)&lt;/td&gt;&lt;td&gt;1.06&lt;sup&gt;**&lt;/sup&gt; (0.20, 1.91)&lt;/td&gt;&lt;td&gt;-0.08 (-0.55, 0.40)&lt;/td&gt;&lt;td&gt;1.33 (-1.14, 3.80)&lt;/td&gt;&lt;td&gt;1.50&lt;sup&gt;*&lt;/sup&gt; (-0.07, 3.08)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Population&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;-0.0000&lt;sup&gt;**&lt;/sup&gt; (-0.0000, -0.0000)&lt;/td&gt;&lt;td&gt;-0.0000 (-0.0000, 0.0000)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;Unemploymentrate&lt;/td&gt;&lt;td&gt;3.12&lt;sup&gt;***&lt;/sup&gt; (1.36, 4.89)&lt;/td&gt;&lt;td&gt;2.08&lt;sup&gt;***&lt;/sup&gt; (0.72, 3.45)&lt;/td&gt;&lt;td&gt;0.76&lt;sup&gt;***&lt;/sup&gt; (0.19, 1.32)&lt;/td&gt;&lt;td&gt;-0.12 (-0.69, 0.46)&lt;/td&gt;&lt;td&gt;1.88&lt;sup&gt;***&lt;/sup&gt; (0.81, 2.96)&lt;/td&gt;&lt;td&gt;1.24&lt;sup&gt;***&lt;/sup&gt; (0.52, 1.96)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;PovertyRate&lt;/td&gt;&lt;td&gt;1.58&lt;sup&gt;**&lt;/sup&gt; (0.30, 2.85)&lt;/td&gt;&lt;td&gt;1.29&lt;sup&gt;**&lt;/sup&gt; (0.26, 2.32)&lt;/td&gt;&lt;td&gt;0.31&lt;sup&gt;**&lt;/sup&gt; (0.04, 0.58)&lt;/td&gt;&lt;td&gt;-0.13 (-0.53, 0.27)&lt;/td&gt;&lt;td&gt;1.00&lt;sup&gt;**&lt;/sup&gt; (0.19, 1.82)&lt;/td&gt;&lt;td&gt;0.57&lt;sup&gt;**&lt;/sup&gt; (0.10, 1.05)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="text-align:left"&gt;GrossStateProduct&lt;/td&gt;&lt;td&gt;0.0002&lt;sup&gt;***&lt;/sup&gt; (0.0002, 0.0003)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0001, 0.0002)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0000, 0.0001)&lt;/td&gt;&lt;td&gt;0.0000&lt;sup&gt;**&lt;/sup&gt; (0.0000, 0.0000)&lt;/td&gt;&lt;td&gt;0.0002&lt;sup&gt;***&lt;/sup&gt; (0.0001, 0.0002)&lt;/td&gt;&lt;td&gt;0.0001&lt;sup&gt;***&lt;/sup&gt; (0.0000, 0.0001)&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="7" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="6" style="text-align:right"&gt;&lt;sup&gt;&amp;sstarf;&lt;/sup&gt;p&lt;0.1;&lt;sup&gt;&amp;sstarf;&amp;sstarf;&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;&amp;sstarf;&amp;sstarf;&amp;sstarf;&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;
+
+---
+# Conclusions
+
+* 
+--- 
+# References 
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": "false}"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
