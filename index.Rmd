@@ -30,17 +30,17 @@ library(usethis)
 opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality Data/Analysis Files/opioid_mw2.sas7bdat")
 ```
 
-# Intro
+# Introduction
 
-* Transition from GA COVID-19 internet adoption data project
+* Proejct changes: originally studying GA COVID-19 internet adoption and vaccination rates -- do EDA often and early! 
 
-* Previous research on minimum wage and suicde @Koffman 
+* Yearly opioid deaths have doubled over the past decade, nearly 46,802 deaths from opioid overdoses in 2019, some evidence that this has accelerated amidst pandemic (National Institute on Drug Abuse 2021)
 
-* Diseases of dispair [@e]
+* Opioid overdoses, drug overdoses labeled "diseases of despair", alongside suicide and alcohol poisoning (Mulligan 2021)
 
-* link with economic stressors
+* Diseases of despair have been shown to result from individuals in situations of hopelessness, typically in extreme poverty or economic instability (Knapp et al. 2019)
 
-* Determining link between MW and opioid deaths using mortality data 
+* Research showing significant reductions in suicide with increases in minimum wage (Kaufman et al. 2020)
 
 
 ---
@@ -49,6 +49,9 @@ opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality 
 
 ## Research question: 
 What is the impact of state-level minimum wage differences from federal minimum wage on opioid deaths?
+
+---
+# Design 
 
 ## Data sources: 
 * Opioid death records--  National Vital Statistics System 1990-2015, filtered using ICD-10 codes, all deaths where the underlying cause was :
@@ -60,6 +63,7 @@ What is the impact of state-level minimum wage differences from federal minimum 
 * Minimum Wage and State policy covariates 
 
   * Repository provided by the University of Kentucky Center for Poverty Research
+  * Includes data on state-level poverty level, unemployment rate, gross state product, receipt of TANF services, EITC, variety of family economic outcomes
 ---
 # Design
 
