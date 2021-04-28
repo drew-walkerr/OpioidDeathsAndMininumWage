@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Opioid And Minimum Wage Trends from 1999-2015</title>
+    <title>Opioid And Minimum Wage Trends from 1999-2015 : a Difference-in-Difference Analysis</title>
     <meta charset="utf-8" />
     <meta name="author" content="Drew Walker, MS, CHES" />
     <meta name="date" content="2021-04-28" />
@@ -13,8 +13,7 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Opioid And Minimum Wage Trends from 1999-2015
-## a Difference-in-Difference Analysis
+# Opioid And Minimum Wage Trends from 1999-2015 : a Difference-in-Difference Analysis
 ### Drew Walker, MS, CHES
 ### Department of Behavioral, Social, Health Education Sciences, Emory University
 ### 2021-04-28
@@ -103,7 +102,7 @@ mw_plot_facet &lt;- ggplot(data = opioid_m2, aes(Mon,real_st2015))+
          geom_line(aes(color = State))+
   ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
   theme_classic() +
-  facet_wrap(~ State)
+* facet_wrap(~ State)
 ```
 
 ---
@@ -125,9 +124,9 @@ class: center, middle
 .tiny[
 
 ```r
-opioid_m2_animate &lt;- opioid_m2 %&gt;% 
-  group_by(State, year) %&gt;% 
-  summarise(meanyear_mwdiff2015 = mean(mwdiff2015),
+*opioid_m2_animate &lt;- opioid_m2 %&gt;%
+* group_by(State, year) %&gt;%
+  summarise(meanyear_mwdiff2015 = mean(mwdiff2015), 
          sum_yearopioid_frequency= sum(Frequency),
          meanyear_poverty_PovertyRate= mean(PovertyRate))
 
@@ -142,14 +141,14 @@ ggplot(opioid_m2_animate, aes(x=meanyear_mwdiff2015,
   guides(size = guide_legend("Poverty Rate %"))+
   theme(legend.position = "bottom")+
   guides(color = FALSE)+
-  geom_label_repel(aes(label = State),
-                  box.padding   = 0.35, 
-                  point.padding = 0.5,
-                  segment.color = 'grey50',
-                  show.legend = FALSE)+
-  transition_time(as.integer(year)) +
-  labs(title = "Opioid Deaths and Minimum Wage by States from 1999 to 2015",
-       subtitle = "Year: {frame_time}")
+* geom_label_repel(aes(label = State),
+*                 box.padding   = 0.35,
+*                 point.padding = 0.5,
+                  segment.color = 'grey50', 
+                  show.legend = FALSE)+ 
+* transition_time(as.integer(year)) +
+* labs(title = "Opioid Deaths and Minimum Wage by States from 1999 to 2015",
+*      subtitle = "Year: {frame_time}")
 anim_save("Opioid and Minimum Wage gapminder style.gif", animation = last_animation())
 ```
 ]
@@ -167,6 +166,39 @@ background-image: url("MW Difference Shiny.PNG")
 background-size: contain
 
 ---
+
+
+```r
+opioid_m2 &lt;- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality Data/Analysis Files/opioid_mw2.sas7bdat")
+*ui &lt;- fluidPage(selectInput(inputId = "state_input",
+                            label = "Choose a State",
+                            choices = opioid_m2$State),
+*               plotOutput(outputId = "minimum_wage_state_plot")
+                )
+*server &lt;- function(input, output) {
+* filter_state &lt;- reactive({
+*   a &lt;- subset(opioid_m2, State == input$state_input)
+    return(a)
+  })
+* output$minimum_wage_state_plot &lt;- renderPlot({
+    ggplot(data=filter_state(), aes(Mon,mwdiff2015))+
+      geom_line()+
+      ggtitle('State Minimum Wage Difference from Federal', subtitle = 'in 2015 Dollars over Time by State, 2000-2015')+
+      theme_classic()+
+    ggplot(data = filter_state(), aes(Mon,Frequency))+
+      geom_line(aes(color = State))+
+      ggtitle('Opioid-related deaths over Time by State, 2000-2015')+
+      theme_classic()
+    })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+---
+
+
 class: center, middle
 # Results
 
