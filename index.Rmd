@@ -32,7 +32,7 @@ opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality 
 
 # Introduction
 
-* Proejct changes: originally studying GA COVID-19 internet adoption and vaccination rates -- do EDA often and early! 
+* Project changes: originally studying GA COVID-19 internet adoption and vaccination rates -- do EDA often and early! 
 
 * Yearly opioid deaths have doubled over the past decade, nearly 46,802 deaths from opioid overdoses in 2019, some evidence that this has accelerated amidst pandemic (National Institute on Drug Abuse 2021)
 
@@ -48,13 +48,13 @@ opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality 
 # Design
 
 ## Research question: 
-What is the impact of state-level minimum wage differences from federal minimum wage on opioid deaths?
+What is the impact of state-level minimum wage differences from federal minimum wage on opioid deaths in the US from 2000-2015?
 
 ---
 # Design 
 
 ## Data sources: 
-* Opioid death records--  National Vital Statistics System 1990-2015, filtered using ICD-10 codes, all deaths where the underlying cause was :
+* Opioid death records--  National Vital Statistics System 2000-2015, filtered using ICD-10 codes, all deaths where the underlying cause was :
 
   * Accidental opioid poisoning (OD) (X40-X44, X60-X64)
   * Intentional Self-Poisoning (suicide) , (Y10-Y14)
@@ -313,6 +313,10 @@ stargazer(robust_frequency_lag,robust_hs_lag, robust_sc_lag,robust_cg_lag, robus
 * Intervention reach: significant associations among concurrent state-mont-minimum wage increase and opioid deaths in women, who make up 60% of minimum wage earners 
 
 * Is Minimum Wage too blunt of a policy intervention for the problem of opioid-related deaths? 
+
+* Limitations: 
+  * Range of minimum wage increases was small, unable to determine effects at higher levels.
+  * 1/5 death records were found with no information on drugs, may be underreporting opioid deaths (Rudd et al. 2016)
 
 ---
 
