@@ -27,6 +27,10 @@ library(sandwich)
 library(tinytex)
 library(usethis)
 opioid_m2 <- read_sas("T:/bsheprojs/Family Economic Security Policies/Mortality Data/Analysis Files/opioid_mw2.sas7bdat")
+
+opioid_m2 <- opioid_m2 %>% 
+  mutate(GrossStateProduct_by_hundred_thousand = GrossStateProduct/100000)
+
 ```
 
 # Introduction
@@ -207,12 +211,12 @@ class: center, middle
 # add 1-12 month as covariate to account for seasonality
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct, data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state <- plm(formula=Frequency ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand, data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_frequency_lag <- coeftest(fe.state, vcov=vcovHC(fe.state, type="sss", cluster="group")) 
 
-fe.state.unlag <- plm(formula=Frequency ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.unlag <- plm(formula=Frequency ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_frequency_unlag <- coeftest(fe.state.unlag, vcov=vcovHC(fe.state.unlag, type="sss", cluster="group")) 
@@ -223,12 +227,12 @@ robust_frequency_unlag
 ```{r opioid-deaths-hs-model, include = FALSE}
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state.hs.lag <- plm(formula=HS_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.hs.lag <- plm(formula=HS_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_hs_lag <- coeftest(fe.state.hs.lag, vcov=vcovHC(fe.state.hs.lag, type="sss", cluster="group")) 
 
-fe.state.hs.unlag <- plm(formula=HS_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.hs.unlag <- plm(formula=HS_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_hs_unlag <- coeftest(fe.state.hs.unlag, vcov=vcovHC(fe.state.hs.unlag, type="sss", cluster="group")) 
@@ -239,8 +243,8 @@ robust_hs_unlag <- coeftest(fe.state.hs.unlag, vcov=vcovHC(fe.state.hs.unlag, ty
 ```{r opioid-deaths-sc-model, include = FALSE}
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state.sc.lag <- plm(formula=SC_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
-fe.state.sc.unlag <- plm(formula=SC_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.sc.lag <- plm(formula=SC_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.sc.unlag <- plm(formula=SC_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 
@@ -253,14 +257,14 @@ robust_sc_unlag <- coeftest(fe.state.sc.unlag, vcov=vcovHC(fe.state.sc.unlag, ty
 ```{r opioid-deaths-cg-model, include = FALSE}
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state.cg <- plm(formula=CG_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.cg <- plm(formula=CG_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 fe.state.cg
 summary(fe.state.cg)
 
 robust_cg_lag <- coeftest(fe.state.cg, vcov=vcovHC(fe.state.cg, type="sss", cluster="group")) 
 
-fe.state.cg.unlag <- plm(formula=CG_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.cg.unlag <- plm(formula=CG_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_cg_unlag <- coeftest(fe.state.cg.unlag, vcov=vcovHC(fe.state.cg.unlag, type="sss", cluster="group")) 
@@ -272,8 +276,8 @@ robust_cg_unlag <- coeftest(fe.state.cg.unlag, vcov=vcovHC(fe.state.cg.unlag, ty
 ```{r, opioid-male-model, include = FALSE}
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state.male.unlag <- plm(formula=male_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
-fe.state.male.lag <- plm(formula=male_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.male.unlag <- plm(formula=male_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.male.lag <- plm(formula=male_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 
@@ -288,9 +292,9 @@ robust_male_lag <- coeftest(fe.state.male.lag, vcov=vcovHC(fe.state.male.lag, ty
 ```{r, opioid-female-model, include = FALSE}
 opioid_m2$year<- as.factor(opioid_m2$year)
 opioid_m2$month<- as.factor(opioid_m2$month)
-fe.state.female <- plm(formula=female_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.female <- plm(formula=female_opioid ~ lag_mwdiff + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
-fe.state.female.unlag <- plm(formula=female_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
+fe.state.female.unlag <- plm(formula=female_opioid ~ mwdiff2015 + Population + Unemploymentrate + month + year + PovertyRate + GrossStateProduct_by_hundred_thousand,data = opioid_m2, model = "within", index=c("FIPS_Code"),effect = "twoways")
 
 
 robust_female_lag <- coeftest(fe.state.female, vcov=vcovHC(fe.state.female, type="sss", cluster="group")) 
@@ -313,7 +317,8 @@ stargazer(robust_frequency_unlag,robust_hs_unlag, robust_sc_unlag, robust_cg_unl
           no.space = TRUE, # to remove the spaces after each line of coefficients
           column.sep.width = "3pt", # to reduce column width
           font.size = "small",
-          digits = 2) # to make font size smaller)
+          digits = 2,# to make font size smaller)
+          omit = "Population") 
 ```
 
 ---
@@ -330,7 +335,8 @@ stargazer(robust_frequency_lag,robust_hs_lag, robust_sc_lag,robust_cg_lag, robus
           no.space = TRUE, # to remove the spaces after each line of coefficients
           column.sep.width = "3pt", # to reduce column width
           font.size = "small", # to make font size smaller))
-          digits = 2)
+          digits = 2,# to make font size smaller)
+          omit = "Population") 
 ```
 
 ---
